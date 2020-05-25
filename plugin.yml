@@ -1,0 +1,6 @@
+---
+name: Resource
+main: xtakumatutix\resource\Main
+version: 1.0.0
+api: 3.0.0
+...

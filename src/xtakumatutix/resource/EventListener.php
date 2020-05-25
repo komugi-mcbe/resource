@@ -11,6 +11,7 @@ use pocketmine\level\Position;
 use pocketmine\plugin\Plugin;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
+use onebone\economyapi\EconomyAPI;
 
 class EventListener implements Listener 
 {
@@ -24,6 +25,7 @@ class EventListener implements Listener
     public function onBreak(BlockBreakEvent $event)
     {
         $player = $event->getPlayer();
+        $name = $player->getName();
         $block = $event->getBlock();
         $blockid = $block->getID();
         $blockdamage = $block->getDamage();
@@ -32,13 +34,31 @@ class EventListener implements Listener
         $z = $block->getZ();
         $level = $player->getLevel()->getName();
         if ($level == "resource")
-        {
-            switch ($blockid){
-                case 1:
-                $this->set($blockid, $blockdamage, $x, $y, $z);     
+            if (!$player->isOP()) {
+                {
+                    switch ($blockid) {
+                        case 87:
+                        case 49:
+                        case 121:
+                        case 155:
+                        case 45:
+                        case 98:
+                        case 12:
+                        case 3:
+                        case 17:
+                        case 1:
+                            $this->set($blockid, $blockdamage, $x, $y, $z);
+
+                            if (mt_rand(1, 10) === 2) {
+                                $money = mt_rand(15, 220);
+                                EconomyAPI::getInstance()->addMoney($name, $money);
+                                $player->sendPopup("§aGet!! §f" . $money . "§6K§eG");
+                            }
+                    }
+                }
             }
-        }
     }
+
 
     public function set($blockid, $blockdamage, $x, $y, $z)
     {
@@ -50,6 +70,6 @@ class EventListener implements Listener
         });
         $plugin = Server::getInstance()->getPluginManager()->getPlugin("Resource");
         /** @var Plugin $plugin */
-        $plugin->getScheduler()->scheduleDelayedTask($task, 10);
+        $plugin->getScheduler()->scheduleDelayedTask($task, 20);
     }
 }

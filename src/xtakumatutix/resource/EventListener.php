@@ -8,6 +8,9 @@ use pocketmine\math\Vector3;
 use pocketmine\block\Block;
 use pocketmine\level\Level;
 use pocketmine\level\Position;
+use pocketmine\plugin\Plugin;
+use pocketmine\scheduler\ClosureTask;
+use pocketmine\Server;
 
 class EventListener implements Listener 
 {
@@ -32,16 +35,21 @@ class EventListener implements Listener
         {
             switch ($blockid){
                 case 1:
-                $this->SetBlock($blockid, $blockdamage, $x, $y, $z);     
+                $this->set($blockid, $blockdamage, $x, $y, $z);     
             }
         }
     }
 
-    public function SetBlock ($blockid, $blockdamage, $x, $y, $z)
+    public function set($blockid, $blockdamage, $x, $y, $z)
     {
         $setblock = Block::get($blockid, $blockdamage);
         $setlevel = $this->Main->getServer()->getLevelByName("resource");
         $Vector3 = new Vector3($x, $y, $z); 
-        $setlevel->setBlock($Vector3, $setblock);
+        $task = new ClosureTask(function (int $currentTick) use ($Vector3, $setblock, $setlevel): void {
+            $setlevel->setBlock($Vector3, $setblock);
+        });
+        $plugin = Server::getInstance()->getPluginManager()->getPlugin("Resource");
+        /** @var Plugin $plugin */
+        $plugin->getScheduler()->scheduleDelayedTask($task, 10);
     }
 }
